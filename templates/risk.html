@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Risk Analysis — KrishiMitra{% endblock %}
+{% block content %}
+
+<div class="topbar">
+    <h1 class="greeting">Crop Risk Analysis</h1>
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <form method="GET">
+            <div class="field">
+                <label for="crop_id">Crop <span class="req">*</span></label>
+                <select id="crop_id" name="crop_id" required onchange="this.form.submit()">
+                    <option value="">Select a crop</option>
+                    {% for c in crops %}
+                    <option value="{{ c.crop_id }}" {{ 'selected' if selected_crop_id == c.crop_id }}>{{ c.crop_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field">
+                <label>Your farm's water availability</label>
+                <div class="radio-group">
+                    {% for opt in [('LOW','Low'), ('MODERATE','Moderate'), ('HIGH','High')] %}
+                    <div class="pill-option">
+                        <input type="radio" id="w_{{ opt[0] }}" name="water_availability" value="{{ opt[0] }}"
+                               {{ 'checked' if water_avail == opt[0] }} onchange="this.form.submit()">
+                        <label for="w_{{ opt[0] }}">{{ opt[1] }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div>
+        {% if result %}
+        <div class="card card-accent text-center">
+            <div class="stat-label">KRISHI RISK SCORE — {{ result.crop_name }}</div>
+            <div class="stat-value" style="font-size:2.6rem;">{{ result.overall_score }} <span style="font-size:1.2rem;">/ 100</span></div>
+            <span class="badge {{ 'badge-low' if 'LOW' in result.label else ('badge-medium' if 'MEDIUM' in result.label else 'badge-high') }}">{{ result.label }}</span>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size:1.05rem;">Risk breakdown</h3>
+            {% for rtype, score in result.by_type.items() %}
+            <div style="margin-bottom:14px;">
+                <div class="flex justify-between" style="font-size:0.88rem; margin-bottom:4px;">
+                    <span>{{ rtype.title() }} Risk</span><span>{{ score|int }}%</span>
+                </div>
+                <div class="progress risk-bar {{ 'low' if score < 35 else ('medium' if score < 60 else '') }}">
+                    <span style="width: {{ score }}%;"></span>
+                </div>
+                {% if result.notes.get(rtype) %}<p class="muted" style="font-size:0.78rem; margin:4px 0 0;">{{ result.notes.get(rtype) }}</p>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="alert alert-info"><i class="fa-solid fa-lightbulb"></i> {{ result.advice }}</div>
+        {% else %}
+        <div class="card empty-state">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <p>Select a crop to see its risk analysis.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

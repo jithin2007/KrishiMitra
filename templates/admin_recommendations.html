@@ -1,0 +1,24 @@
+{% extends "admin_base.html" %}
+{% block title %}Recommendations Log — KrishiMitra Admin{% endblock %}
+{% block content %}
+<div class="topbar"><h1 class="greeting">Recommendations Log</h1></div>
+
+<div class="table-wrap">
+    <table class="data-table">
+        <thead><tr><th>Farmer</th><th>Farm</th><th>Crop</th><th>Score</th><th>Risk</th><th>Scenario</th><th>Generated</th></tr></thead>
+        <tbody>
+        {% for r in recommendations %}
+            <tr>
+                <td>{{ r.farmer_name }}</td>
+                <td>{{ r.farm_name }}</td>
+                <td>{{ r.crop_name }}</td>
+                <td><span class="badge badge-gold">{{ r.suitability_score }}%</span></td>
+                <td><span class="badge {{ 'badge-low' if 'LOW' in r.risk_label else ('badge-medium' if 'MEDIUM' in r.risk_label else 'badge-high') }}">{{ r.risk_label }}</span></td>
+                <td>{{ r.scenario_tag }}</td>
+                <td>{{ r.created_at.strftime('%d %b %Y %H:%M') if r.created_at }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

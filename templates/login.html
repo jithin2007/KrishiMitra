@@ -1,0 +1,47 @@
+f{% extends "base_public.html" %}
+{% block title %}Login — KrishiMitra{% endblock %}
+{% block body %}
+<div class="auth-shell">
+    <div class="auth-side">
+        <div class="brand"><span class="leaf"><i class="fa-solid fa-seedling"></i></span> KrishiMitra</div>
+        <p class="tagline">Better Decisions. Better Harvests.</p>
+        <p style="color:#CFE0D2; max-width: 42ch;">Log in to see your farms, recommendations and profit history.</p>
+        <ul>
+            <li><i class="fa-solid fa-shield-halved"></i> Your data is scoped to your account only</li>
+            <li><i class="fa-solid fa-chart-line"></i> Pick up right where you left off</li>
+        </ul>
+    </div>
+    <div class="auth-form-wrap">
+        <div class="auth-card">
+            <div class="brand"><span class="leaf"><i class="fa-solid fa-seedling"></i></span> KrishiMitra</div>
+            <h1 style="font-size:1.6rem;">Welcome back</h1>
+            <p class="muted" style="margin-bottom: 24px;">Log in to your farmer account.</p>
+
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" required value="{{ form.email if form else '' }}">
+                </div>
+                <div class="field">
+                    <label for="password">Password</label>
+                    <div class="password-field">
+                        <input type="password" id="password" name="password" placeholder="Your password" required>
+                        <button type="button" class="password-toggle" data-target="password"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between" style="margin-bottom: 18px;">
+                    <label class="flex items-center gap-8" style="font-weight:500; font-size:0.9rem;">
+                        <input type="checkbox" name="remember" style="width:auto;"> Remember me
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-block">Log in</button>
+                     <button type="submit" class="btn btn-primary btn-block">dummy</button>
+                </div>
+            </form>
+            <p class="auth-footer-link">New to KrishiMitra? <a href="{{ url_for('auth.register') }}">Create an account</a></p>
+            <p class="auth-footer-link"><a href="{{ url_for('auth.admin_login') }}"><i class="fa-solid fa-user-shield"></i> Admin login</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

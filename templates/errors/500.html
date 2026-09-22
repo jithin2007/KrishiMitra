@@ -1,0 +1,9 @@
+{% extends "base_public.html" %}
+{% block title %}Server Error — KrishiMitra{% endblock %}
+{% block body %}
+<div class="container text-center" style="padding: 100px 24px;">
+    <h1 style="font-size:3rem;">500</h1>
+    <p class="muted">Something went wrong on our end. Please try again shortly.</p>
+    <a class="btn btn-primary" href="{{ url_for('main.index') }}">Go home</a>
+</div>
+{% endblock %}

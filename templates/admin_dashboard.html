@@ -1,0 +1,63 @@
+{% extends "admin_base.html" %}
+{% block title %}Admin Dashboard — KrishiMitra{% endblock %}
+{% block content %}
+
+<div class="topbar">
+    <h1 class="greeting">System Dashboard</h1>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Total Farmers</div><div class="stat-value">{{ stats.total_farmers }}</div></div>
+    <div class="stat-card"><div class="stat-label">Total Farms</div><div class="stat-value">{{ stats.total_farms }}</div></div>
+    <div class="stat-card"><div class="stat-label">Total Crops</div><div class="stat-value">{{ stats.total_crops }}</div></div>
+    <div class="stat-card"><div class="stat-label">Total Recommendations</div><div class="stat-value">{{ stats.total_recommendations }}</div></div>
+    <div class="stat-card"><div class="stat-label">Avg. Farm Size</div><div class="stat-value">{{ stats.avg_farm_size or 0 }} <span style="font-size:1rem;">acres</span></div></div>
+    <div class="stat-card"><div class="stat-label">Most Cultivated Crop</div><div class="stat-value" style="font-size:1.3rem;">{{ stats.most_cultivated_crop or '—' }}</div></div>
+    <div class="stat-card"><div class="stat-label">Most Recommended Crop</div><div class="stat-value" style="font-size:1.3rem;">{{ stats.most_recommended_crop or '—' }}</div></div>
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <h3 style="font-size:1.05rem;">Crop performance (times planted)</h3>
+        {% if crop_performance %}
+        <canvas id="cropPerfChart" height="200"></canvas>
+        {% else %}
+        <div class="empty-state"><i class="fa-solid fa-chart-column"></i><p>No crop history recorded across the system yet.</p></div>
+        {% endif %}
+    </div>
+    <div class="card">
+        <div class="flex justify-between items-center">
+            <h3 style="font-size:1.05rem; margin:0;">Recently registered farmers</h3>
+            <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.farmers') }}">View all</a>
+        </div>
+        <div class="table-wrap" style="margin-top:14px;">
+            <table class="data-table">
+                <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Joined</th></tr></thead>
+                <tbody>
+                {% for f in recent_farmers %}
+                    <tr>
+                        <td>{{ f.full_name }}</td><td>{{ f.email }}</td>
+                        <td><span class="badge {{ 'badge-low' if f.status == 'ACTIVE' else 'badge-high' }}">{{ f.status }}</span></td>
+                        <td>{{ f.created_at.strftime('%d %b %Y') if f.created_at }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% if crop_performance %}
+<script>
+KrishiCharts.createBarChart(
+    "cropPerfChart",
+    {{ crop_performance|map(attribute='crop_name')|list|tojson }},
+    {{ crop_performance|map(attribute='times_planted')|list|tojson }},
+    "Times Planted"
+);
+</script>
+{% endif %}
+{% endblock %}

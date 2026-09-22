@@ -1,0 +1,90 @@
+{% extends "base_public.html" %}
+{% block body %}
+
+<header class="site-header">
+    <div class="container">
+        <div class="brand"><span class="leaf"><i class="fa-solid fa-seedling"></i></span> KM</div>
+        <nav class="site-nav">
+            <a class="navlink" href="#features">Features</a>
+            <a class="navlink" href="#how-it-works">How it works</a>
+        </nav>
+        <div class="header-actions">
+            <a class="btn btn-ghost" href="{{ url_for('auth.login') }}">Login</a>
+            <a class="btn btn-primary" href="{{ url_for('auth.register') }}">Get Started</a>
+        </div>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="container">
+        <div>
+            <span class="hero-eyebrow"><i class="fa-solid fa-leaf"></i> Decision support for Indian farmers</span>
+            <h1>KM</h1>
+            <p class="tagline">Better Decisions. Better Harvests.</p>
+            <p class="lede">A data-driven farming companion that helps you choose the right crop for your land,
+                estimate what it will cost and return, and understand the risks before you plant — all built on
+                real agricultural data, not guesswork.</p>
+            <div class="hero-actions">
+                <a class="btn btn-gold" href="{{ url_for('auth.register') }}">Get Started <i class="fa-solid fa-arrow-right"></i></a>
+                <a class="btn btn-outline" href="{{ url_for('auth.login') }}">Login</a>
+            </div>
+        </div>
+        <div class="hero-art">
+            <div class="hero-art">
+    <img src="https://t4.ftcdn.net/jpg/12/50/32/05/360_F_1250320539_mSBEKgn75R0ITYmIU0euFdPaWRw8tsnO.jpg"
+         alt="Green crop field">
+</div>
+        </div>
+    </div>
+</section>
+
+<section id="features" class="feature-section">
+    <div class="container">
+        <div class="section-heading">
+            <div class="kicker">What KrishiMitra does</div>
+            <h2>One platform, four decisions farmers make every season</h2>
+        </div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="icon"><i class="fa-solid fa-seedling"></i></div>
+                <h3>Smart Recommendations</h3>
+                <p>Find crops suited to your farm's soil, season, water and budget — ranked and explained.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon"><i class="fa-solid fa-chart-column"></i></div>
+                <h3>Farm Analytics</h3>
+                <p>Understand your farm's performance across seasons with a clear, visual dashboard.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon"><i class="fa-solid fa-coins"></i></div>
+                <h3>Profit Planning</h3>
+                <p>Estimate investment, revenue, profit and ROI before you commit to a crop.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h3>Risk Analysis</h3>
+                <p>See water, soil, disease, market and weather risk broken down, with practical advice.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="how-it-works" class="container" style="padding: 70px 24px;">
+    <div class="section-heading">
+        <div class="kicker">How it works</div>
+        <h2>From farm details to a ranked, explained recommendation</h2>
+    </div>
+    <div class="grid-3" style="margin-top: 32px;">
+        <div class="card"><h3 style="font-size:1.05rem;">1. Add your farm</h3><p class="muted">Soil, irrigation, water availability and season — a few dropdowns, no jargon.</p></div>
+        <div class="card"><h3 style="font-size:1.05rem;">2. Get ranked crops</h3><p class="muted">Every active crop is scored out of 100 against your exact conditions.</p></div>
+        <div class="card"><h3 style="font-size:1.05rem;">3. See the "why"</h3><p class="muted">Every score comes with plain-language reasons — never a black box.</p></div>
+    </div>
+</section>
+
+<footer class="site-footer">
+    <div class="container">
+        <span>© 2026 KrishiMitra — a farmer decision-support project.</span>
+    </div>
+</footer>
+
+{% endblock %}

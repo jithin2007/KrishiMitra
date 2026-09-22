@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Farm' if editing else 'Add Farm' }} — KrishiMitra{% endblock %}
+{% block content %}
+
+<div class="topbar">
+    <h1 class="greeting">{{ 'Edit Farm' if editing else 'Add a New Farm' }}</h1>
+</div>
+
+<div class="card" style="max-width: 760px;">
+    <form id="farm-form" method="POST">
+        <div class="form-grid">
+            <div class="field">
+                <label for="farm_name">Farm name <span class="req">*</span></label>
+                <input type="text" id="farm_name" name="farm_name" placeholder="e.g. Home Farm" required
+                       value="{{ (form.farm_name if form else farm.farm_name) if (form or farm) else '' }}">
+            </div>
+            <div class="field">
+                <label for="location">Location <span class="req">*</span></label>
+                <input type="text" id="location" name="location" placeholder="Village, District, State" required
+                       value="{{ (form.location if form else farm.location) if (form or farm) else '' }}">
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="field">
+                <label for="land_area">Land area (acres) <span class="req">*</span></label>
+                <input type="number" step="0.1" min="0.1" id="land_area" name="land_area" placeholder="e.g. 3.5" required
+                       value="{{ (form.land_area if form else farm.land_area_acres) if (form or farm) else '' }}">
+            </div>
+            <div class="field">
+                <label for="soil_id">Soil type <span class="req">*</span></label>
+                <select id="soil_id" name="soil_id" required>
+                    <option value="">Select soil type</option>
+                    {% for s in soils %}
+                    <option value="{{ s.soil_id }}" {{ 'selected' if (farm and farm.soil_id == s.soil_id) }}>{{ s.soil_name.title() }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Irrigation type <span class="req">*</span></label>
+            <div class="radio-group">
+                {% for opt in [('RAINFED','Rainfed'), ('BOREWELL','Borewell'), ('CANAL','Canal'), ('DRIP','Drip'), ('SPRINKLER','Sprinkler')] %}
+                <div class="pill-option">
+                    <input type="radio" id="irr_{{ opt[0] }}" name="irrigation_type" value="{{ opt[0] }}"
+                           {{ 'checked' if (farm and farm.irrigation_type == opt[0]) or (not farm and opt[0]=='BOREWELL') }}>
+                    <label for="irr_{{ opt[0] }}">{{ opt[1] }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Water availability <span class="req">*</span></label>
+            <div class="radio-group">
+                {% for opt in [('LOW','Low'), ('MODERATE','Moderate'), ('HIGH','High')] %}
+                <div class="pill-option">
+                    <input type="radio" id="water_{{ opt[0] }}" name="water_availability" value="{{ opt[0] }}"
+                           {{ 'checked' if (farm and farm.water_availability == opt[0]) or (not farm and opt[0]=='MODERATE') }}>
+                    <label for="water_{{ opt[0] }}">{{ opt[1] }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="season_id">Current season</label>
+            <select id="season_id" name="season_id">
+                <option value="">Select season</option>
+                {% for se in seasons %}
+                <option value="{{ se.season_id }}" {{ 'selected' if (farm and farm.current_season_id == se.season_id) }}>{{ se.season_name.title() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" placeholder="Anything else worth noting about this farm">{{ farm.notes if farm else '' }}</textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{{ 'Save Changes' if editing else 'Add Farm' }}</button>
+            <button type="reset" class="btn btn-ghost" data-clear-form="farm-form">Clear</button>
+            <a class="btn btn-ghost" href="{{ url_for('farmer.farms') }}">Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/forms.js') }}"></script>{% endblock %}

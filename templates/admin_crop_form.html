@@ -1,0 +1,49 @@
+{% extends "admin_base.html" %}
+{% block title %}{{ 'Edit Crop' if crop else 'Add Crop' }} — KrishiMitra Admin{% endblock %}
+{% block content %}
+<div class="topbar"><h1 class="greeting">{{ 'Edit Crop' if crop else 'Add Crop' }}</h1></div>
+
+<div class="card" style="max-width: 700px;">
+    <form method="POST">
+        <div class="field">
+            <label for="crop_name">Crop name <span class="req">*</span></label>
+            <input type="text" id="crop_name" name="crop_name" required value="{{ (form.crop_name if form else crop.crop_name) if (form or crop) else '' }}">
+        </div>
+        <div class="field">
+            <label for="description">Description</label>
+            <textarea id="description" name="description">{{ (form.description if form else crop.description) if (form or crop) else '' }}</textarea>
+        </div>
+        <div class="form-grid">
+            <div class="field">
+                <label>Water requirement <span class="req">*</span></label>
+                <select name="water_requirement" required>
+                    {% for w in ['LOW','MODERATE','HIGH'] %}
+                    <option value="{{ w }}" {{ 'selected' if crop and crop.water_requirement == w }}>{{ w.title() }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field">
+                <label>Base risk level <span class="req">*</span></label>
+                <select name="base_risk_level" required>
+                    {% for r in ['LOW','MEDIUM','HIGH'] %}
+                    <option value="{{ r }}" {{ 'selected' if crop and crop.base_risk_level == r }}>{{ r.title() }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-grid">
+            <div class="field"><label for="growth_duration_days">Growth duration (days) <span class="req">*</span></label>
+                <input type="number" id="growth_duration_days" name="growth_duration_days" required value="{{ crop.growth_duration_days if crop else '' }}"></div>
+            <div class="field"><label for="expected_yield">Expected yield (qtl/acre) <span class="req">*</span></label>
+                <input type="number" step="0.1" id="expected_yield" name="expected_yield" required value="{{ crop.expected_yield_qtl_per_acre if crop else '' }}"></div>
+        </div>
+        <div class="field"><label for="selling_price">Avg. selling price (₹/qtl) <span class="req">*</span></label>
+            <input type="number" step="0.01" id="selling_price" name="selling_price" required value="{{ crop.avg_selling_price_per_qtl if crop else '' }}"></div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{{ 'Save Changes' if crop else 'Add Crop' }}</button>
+            <a class="btn btn-ghost" href="{{ url_for('admin.crops') }}">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

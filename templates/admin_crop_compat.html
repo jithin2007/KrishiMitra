@@ -1,0 +1,76 @@
+{% extends "admin_base.html" %}
+{% block title %}{{ crop.crop_name }} Compatibility — KrishiMitra Admin{% endblock %}
+{% block content %}
+<div class="topbar"><h1 class="greeting">{{ crop.crop_name }} — Compatibility &amp; Data</h1></div>
+
+<div class="grid-2">
+    <div>
+        <div class="card">
+            <h3 style="font-size:1.05rem;">Soil suitability</h3>
+            {% for cs in crop_soils %}
+            <div class="flex justify-between items-center" style="padding:6px 0; border-bottom:1px solid var(--line);">
+                <span>{{ cs.soil_name.title() }} — {{ cs.suitability_level.title() }}</span>
+                <form method="POST"><input type="hidden" name="action" value="remove_soil"><input type="hidden" name="soil_id" value="{{ cs.soil_id }}">
+                    <button class="btn btn-ghost btn-sm" type="submit"><i class="fa-solid fa-xmark"></i></button>
+                </form>
+            </div>
+            {% endfor %}
+            <form method="POST" class="form-grid" style="margin-top:14px;">
+                <input type="hidden" name="action" value="add_soil">
+                <div class="field"><label>Soil</label><select name="soil_id" required>{% for s in soils %}<option value="{{ s.soil_id }}">{{ s.soil_name.title() }}</option>{% endfor %}</select></div>
+                <div class="field"><label>Suitability</label><select name="suitability_level" required>
+                    {% for l in ['EXCELLENT','GOOD','FAIR','POOR'] %}<option value="{{ l }}">{{ l.title() }}</option>{% endfor %}
+                </select></div>
+                <div class="field"><button class="btn btn-outline" type="submit">Add / Update</button></div>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size:1.05rem;">Season suitability</h3>
+            {% for cn in crop_seasons %}
+            <div class="flex justify-between items-center" style="padding:6px 0; border-bottom:1px solid var(--line);">
+                <span>{{ cn.season_name.title() }}</span>
+                <form method="POST"><input type="hidden" name="action" value="remove_season"><input type="hidden" name="season_id" value="{{ cn.season_id }}">
+                    <button class="btn btn-ghost btn-sm" type="submit"><i class="fa-solid fa-xmark"></i></button>
+                </form>
+            </div>
+            {% endfor %}
+            <form method="POST" class="form-grid" style="margin-top:14px;">
+                <input type="hidden" name="action" value="add_season">
+                <div class="field"><label>Season</label><select name="season_id" required>{% for se in seasons %}<option value="{{ se.season_id }}">{{ se.season_name.title() }}</option>{% endfor %}</select></div>
+                <div class="field"><button class="btn btn-outline" type="submit">Add</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <div class="card">
+            <h3 style="font-size:1.05rem;">Cost per acre (₹)</h3>
+            <form method="POST" class="form-grid">
+                <input type="hidden" name="action" value="save_cost">
+                <div class="field"><label>Seed</label><input type="number" name="seed_cost" value="{{ cost.seed_cost if cost else 0 }}"></div>
+                <div class="field"><label>Fertilizer</label><input type="number" name="fertilizer_cost" value="{{ cost.fertilizer_cost if cost else 0 }}"></div>
+                <div class="field"><label>Labour</label><input type="number" name="labour_cost" value="{{ cost.labour_cost if cost else 0 }}"></div>
+                <div class="field"><label>Irrigation</label><input type="number" name="irrigation_cost" value="{{ cost.irrigation_cost if cost else 0 }}"></div>
+                <div class="field"><label>Other</label><input type="number" name="other_cost" value="{{ cost.other_cost if cost else 0 }}"></div>
+                <div class="field"><button class="btn btn-primary" type="submit">Save Costs</button></div>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size:1.05rem;">Risk factors</h3>
+            {% for rt in ['WATER','SOIL','DISEASE','MARKET','WEATHER'] %}
+                {% set existing = risks | selectattr('risk_type', 'equalto', rt) | list %}
+                {% set r = existing[0] if existing else None %}
+                <form method="POST" class="form-grid" style="align-items:flex-end; margin-bottom: 10px;">
+                    <input type="hidden" name="action" value="save_risk">
+                    <input type="hidden" name="risk_type" value="{{ rt }}">
+                    <div class="field"><label>{{ rt.title() }} score (0-100)</label><input type="number" name="risk_score" min="0" max="100" value="{{ r.risk_score if r else 30 }}"></div>
+                    <div class="field"><label>Notes</label><input type="text" name="notes" value="{{ r.notes if r else '' }}"></div>
+                    <div class="field"><button class="btn btn-outline btn-sm" type="submit">Save</button></div>
+                </form>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+'{% extends "base.html" %}
+{% block title %}Dashboard — KM{% endblock %}
+{% block content %}
+
+<div class="topbar">
+    <h1 class="greeting">Good day, {{ session.farmer_name.split(' ')[0] }} <span style="font-size:1.3rem;">👋</span></h1>
+    <a class="btn btn-primary" href="{{ url_for('farmer.add_farm') }}"><i class="fa-solid fa-plus"></i> Add Farm</a>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Farms</div>
+        <div class="stat-value">{{ summary.total_farms }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total Land</div>
+        <div class="stat-value">{{ '%.1f'|format(summary.total_land_acres) }} <span style="font-size:1rem;">acres</span></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Active Crops</div>
+        <div class="stat-value">{{ summary.active_crops }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Estimated Profit</div>
+        <div class="stat-value">₹{{ '{:,.0f}'.format(summary.total_profit) }}</div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <div>
+        <div class="card">
+            <h3 style="font-size:1.05rem;">Profit trend</h3>
+            {% if profit_trend %}
+            <canvas id="profitChart" height="110"></canvas>
+            {% else %}
+            <div class="empty-state"><i class="fa-solid fa-chart-line"></i><p>No profit history yet. Record a harvest in Crop History to see your trend here.</p></div>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <div class="flex justify-between items-center">
+                <h3 style="font-size:1.05rem; margin:0;">Recent crop history</h3>
+                <a href="{{ url_for('farmer.history') }}" class="btn btn-ghost btn-sm">View all</a>
+            </div>
+            {% if recent_history %}
+            <div class="table-wrap" style="margin-top:14px;">
+                <table class="data-table">
+                    <thead><tr><th>Crop</th><th>Farm</th><th>Planted</th><th>Harvested</th><th>Profit</th></tr></thead>
+                    <tbody>
+                    {% for h in recent_history %}
+                        <tr>
+                            <td>{{ h.crop_name }}</td>
+                            <td>{{ h.farm_name }}</td>
+                            <td>{{ h.planting_date.strftime('%d %b %Y') if h.planting_date }}</td>
+                            <td>{{ h.harvest_date.strftime('%d %b %Y') if h.harvest_date else '—' }}</td>
+                            <td>{{ '₹{:,.0f}'.format(h.profit) if h.profit is not none else '—' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state"><i class="fa-solid fa-seedling"></i><p>No crop history recorded yet.</p></div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div>
+        <div class="card card-accent">
+            <h3 style="font-size:1.05rem;">Top recommendation</h3>
+            {% if top_recommendation %}
+                <p class="crop-name" style="font-family:'Fraunces',serif; font-size:1.3rem; color:var(--forest-900);">{{ top_recommendation.crop_name }}</p>
+                <div class="flex items-center gap-8" style="margin-bottom:10px;">
+                    <span class="badge badge-gold">{{ top_recommendation.suitability_score }}% match</span>
+                    <span class="badge {{ 'badge-low' if 'LOW' in top_recommendation.risk_label else ('badge-medium' if 'MEDIUM' in top_recommendation.risk_label else 'badge-high') }}">{{ top_recommendation.risk_label }}</span>
+                </div>
+                <a class="btn btn-outline btn-sm" href="{{ url_for('recommendation.index') }}">See full recommendations</a>
+            {% else %}
+                <div class="empty-state"><i class="fa-solid fa-lightbulb"></i><p>Add a farm to get your first recommendation.</p></div>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h3 style="font-size:1.05rem;">Crop distribution</h3>
+            {% if crop_distribution %}
+            <canvas id="cropDistChart" height="200"></canvas>
+            {% else %}
+            <div class="empty-state"><i class="fa-solid fa-chart-pie"></i><p>Nothing planted yet.</p></div>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h3 style="font-size:1.05rem;">Quick actions</h3>
+            <div class="flex" style="flex-direction:column; gap:10px; margin-top:10px;">
+                <a class="btn btn-outline" href="{{ url_for('recommendation.simulator') }}"><i class="fa-solid fa-sliders"></i> Run What-If Simulator</a>
+                <a class="btn btn-outline" href="{{ url_for('economics.index') }}"><i class="fa-solid fa-coins"></i> Calculate Profit</a>
+                <a class="btn btn-outline" href="{{ url_for('risk.index') }}"><i class="fa-solid fa-triangle-exclamation"></i> Check Crop Risk</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+{% if profit_trend %}
+KrishiCharts.createLineChart(
+    "profitChart",
+    {{ profit_trend|map(attribute='planting_date')|map('string')|list|map('truncate', 11, True, '')|list|tojson }},
+    {{ profit_trend|map(attribute='profit')|list|tojson }},
+    "Profit (₹)"
+);
+{% endif %}
+{% if crop_distribution %}
+KrishiCharts.createDoughnutChart(
+    "cropDistChart",
+    {{ crop_distribution|map(attribute='crop_name')|list|tojson }},
+    {{ crop_distribution|map(attribute='cnt')|list|tojson }}
+);
+{% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "admin_base.html" %}
+{% block title %}Farms — KrishiMitra Admin{% endblock %}
+{% block content %}
+<div class="topbar"><h1 class="greeting">All Farms</h1></div>
+
+<div class="table-wrap">
+    <table class="data-table">
+        <thead><tr><th>Farm</th><th>Farmer</th><th>Location</th><th>Land (acres)</th><th>Soil</th><th>Irrigation</th><th>Water</th></tr></thead>
+        <tbody>
+        {% for f in farms %}
+            <tr>
+                <td>{{ f.farm_name }}</td>
+                <td>{{ f.farmer_name }}</td>
+                <td>{{ f.location }}</td>
+                <td>{{ f.land_area_acres }}</td>
+                <td>{{ f.soil_name.title() }}</td>
+                <td>{{ f.irrigation_type.title() }}</td>
+                <td>{{ f.water_availability.title() }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

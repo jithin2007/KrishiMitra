@@ -1,0 +1,36 @@
+{% extends "admin_base.html" %}
+{% block title %}Crops — KrishiMitra Admin{% endblock %}
+{% block content %}
+<div class="topbar">
+    <h1 class="greeting">Crops</h1>
+    <a class="btn btn-primary" href="{{ url_for('admin.add_crop') }}"><i class="fa-solid fa-plus"></i> Add Crop</a>
+</div>
+
+<div class="table-wrap">
+    <table class="data-table">
+        <thead><tr><th>Name</th><th>Water Req.</th><th>Duration</th><th>Yield/acre</th><th>Price/qtl</th><th>Risk</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        {% for c in crops %}
+            <tr>
+                <td>{{ c.crop_name }}</td>
+                <td>{{ c.water_requirement.title() }}</td>
+                <td>{{ c.growth_duration_days }} days</td>
+                <td>{{ c.expected_yield_qtl_per_acre }} qtl</td>
+                <td>₹{{ '{:,.0f}'.format(c.avg_selling_price_per_qtl) }}</td>
+                <td><span class="badge {{ 'badge-low' if c.base_risk_level=='LOW' else ('badge-medium' if c.base_risk_level=='MEDIUM' else 'badge-high') }}">{{ c.base_risk_level.title() }}</span></td>
+                <td><span class="badge {{ 'badge-low' if c.is_active else 'badge-neutral' }}">{{ 'Active' if c.is_active else 'Inactive' }}</span></td>
+                <td class="flex gap-8">
+                    <a class="btn btn-outline btn-sm" href="{{ url_for('admin.edit_crop', crop_id=c.crop_id) }}">Edit</a>
+                    <a class="btn btn-outline btn-sm" href="{{ url_for('admin.crop_compatibility', crop_id=c.crop_id) }}">Compatibility</a>
+                    {% if c.is_active %}
+                    <form method="POST" action="{{ url_for('admin.delete_crop', crop_id=c.crop_id) }}" data-confirm="Deactivate this crop?">
+                        <button type="submit" class="btn btn-danger btn-sm">Deactivate</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

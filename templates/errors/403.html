@@ -1,0 +1,9 @@
+{% extends "base_public.html" %}
+{% block title %}Access Denied — KrishiMitra{% endblock %}
+{% block body %}
+<div class="container text-center" style="padding: 100px 24px;">
+    <h1 style="font-size:3rem;">403</h1>
+    <p class="muted">You don't have permission to view this page.</p>
+    <a class="btn btn-primary" href="{{ url_for('main.index') }}">Go home</a>
+</div>
+{% endblock %}

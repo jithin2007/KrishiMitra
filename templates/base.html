@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}KrishiMitra{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+<link rel="icon" type="image/png" sizes="256x256" href="{{ url_for('static', filename='images/favicon-256.png') }}">
+{% block head %}{% endblock %}
+</head>
+<body>
+<div id="toast-stack"></div>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="brand"><span class="leaf"><i class="fa-solid fa-seedling"></i></span> KrishiMitra</div>
+        <nav>
+            <a href="{{ url_for('farmer.dashboard') }}" class="{{ 'active' if request.endpoint == 'farmer.dashboard' }}"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+            <a href="{{ url_for('farmer.farms') }}" class="{{ 'active' if request.endpoint in ['farmer.farms','farmer.add_farm','farmer.edit_farm'] }}"><i class="fa-solid fa-tractor"></i> My Farms</a>
+            <a href="{{ url_for('crops.crop_list') }}" class="{{ 'active' if request.endpoint in ['crops.crop_list','crops.crop_detail'] }}"><i class="fa-solid fa-wheat-awn"></i> Crop Library</a>
+            <a href="{{ url_for('recommendation.index') }}" class="{{ 'active' if request.endpoint == 'recommendation.index' }}"><i class="fa-solid fa-lightbulb"></i> Smart Recommendation</a>
+            <a href="{{ url_for('recommendation.simulator') }}" class="{{ 'active' if request.endpoint == 'recommendation.simulator' }}"><i class="fa-solid fa-sliders"></i> What-If Simulator</a>
+            <a href="{{ url_for('economics.index') }}" class="{{ 'active' if request.endpoint == 'economics.index' }}"><i class="fa-solid fa-coins"></i> Economics</a>
+            <a href="{{ url_for('risk.index') }}" class="{{ 'active' if request.endpoint == 'risk.index' }}"><i class="fa-solid fa-triangle-exclamation"></i> Risk Analysis</a>
+            <a href="{{ url_for('farmer.history') }}" class="{{ 'active' if request.endpoint == 'farmer.history' }}"><i class="fa-solid fa-clock-rotate-left"></i> Crop History</a>
+            <div class="sidebar-section">Account</div>
+            <a href="{{ url_for('farmer.profile') }}" class="{{ 'active' if request.endpoint == 'farmer.profile' }}"><i class="fa-solid fa-user"></i> Profile</a>
+            <a href="{{ url_for('auth.logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div id="flash-data" style="display:none;">
+                {% for category, message in messages %}
+                    <div data-category="{{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

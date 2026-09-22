@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Crop Library — KrishiMitra{% endblock %}
+{% block content %}
+
+<div class="topbar">
+    <h1 class="greeting">Crop Library</h1>
+</div>
+
+<div class="grid-3">
+    {% for c in crops %}
+    <div class="card crop-card">
+        <div class="flex justify-between items-center">
+            <span class="crop-name">{{ c.crop_name }}</span>
+            <span class="badge {{ 'badge-low' if c.base_risk_level=='LOW' else ('badge-medium' if c.base_risk_level=='MEDIUM' else 'badge-high') }}">{{ c.base_risk_level.title() }} risk</span>
+        </div>
+        <p class="muted" style="font-size:0.88rem; margin:0;">{{ c.description }}</p>
+        <div class="meta-row">
+            <span><i class="fa-solid fa-droplet"></i> {{ c.water_requirement.title() }} water</span>
+            <span><i class="fa-solid fa-clock"></i> {{ c.growth_duration_days }} days</span>
+        </div>
+        <div class="meta-row">
+            <span><i class="fa-solid fa-weight-hanging"></i> {{ c.expected_yield_qtl_per_acre }} qtl/acre</span>
+            <span><i class="fa-solid fa-rupee-sign"></i> {{ '{:,.0f}'.format(c.avg_selling_price_per_qtl) }}/qtl</span>
+        </div>
+        <a class="btn btn-outline btn-sm" href="{{ url_for('crops.crop_detail', crop_id=c.crop_id) }}">View details</a>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

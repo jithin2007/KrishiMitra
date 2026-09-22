@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Economics — KrishiMitra{% endblock %}
+{% block content %}
+
+<div class="topbar">
+    <h1 class="greeting">Farming Economics Calculator</h1>
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <form id="econ-form" method="POST">
+            <div class="field">
+                <label for="crop_id">Crop <span class="req">*</span></label>
+                <select id="crop_id" name="crop_id" required>
+                    {% for c in crops %}
+                    <option value="{{ c.crop_id }}" {{ 'selected' if form.crop_id|string == c.crop_id|string }}>{{ c.crop_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field">
+                <label for="land_area">Land area (acres) <span class="req">*</span></label>
+                <input type="number" step="0.1" min="0.1" id="land_area" name="land_area" value="{{ form.land_area or 1 }}" required>
+            </div>
+            <p class="muted" style="font-size:0.85rem;">Leave any cost blank to use the crop's typical cost per acre.</p>
+            <div class="form-grid">
+                <div class="field"><label for="seed_cost">Seed cost (₹/acre)</label><input type="number" id="seed_cost" name="seed_cost" value="{{ form.seed_cost or '' }}"></div>
+                <div class="field"><label for="fertilizer_cost">Fertilizer cost (₹/acre)</label><input type="number" id="fertilizer_cost" name="fertilizer_cost" value="{{ form.fertilizer_cost or '' }}"></div>
+                <div class="field"><label for="labour_cost">Labour cost (₹/acre)</label><input type="number" id="labour_cost" name="labour_cost" value="{{ form.labour_cost or '' }}"></div>
+                <div class="field"><label for="irrigation_cost">Irrigation cost (₹/acre)</label><input type="number" id="irrigation_cost" name="irrigation_cost" value="{{ form.irrigation_cost or '' }}"></div>
+            </div>
+            <div class="field"><label for="other_cost">Other expenses (₹/acre)</label><input type="number" id="other_cost" name="other_cost" value="{{ form.other_cost or '' }}"></div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Calculate</button>
+                <button type="reset" class="btn btn-ghost" data-clear-form="econ-form">Clear</button>
+            </div>
+        </form>
+    </div>
+
+    <div>
+        {% if result and not result.error %}
+        <div class="stat-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="stat-card"><div class="stat-label">Total Investment</div><div class="stat-value">₹{{ '{:,.0f}'.format(result.total_investment) }}</div></div>
+            <div class="stat-card"><div class="stat-label">Expected Revenue</div><div class="stat-value">₹{{ '{:,.0f}'.format(result.expected_revenue) }}</div></div>
+            <div class="stat-card"><div class="stat-label">Profit</div><div class="stat-value" style="color: {{ 'var(--success)' if result.is_profitable else 'var(--danger)' }};">₹{{ '{:,.0f}'.format(result.profit) }}</div></div>
+            <div class="stat-card"><div class="stat-label">ROI</div><div class="stat-value">{{ result.roi_percent }}%</div></div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size:1.05rem;">Cost breakdown — {{ result.crop_name }}</h3>
+            <canvas id="costChart" height="200"></canvas>
+        </div>
+
+        <div class="card">
+            <p class="muted" style="font-size:0.88rem;">Based on {{ result.land_area }} acre(s), expected yield of {{ result.expected_yield_qtl }} quintals
+            at ₹{{ '{:,.0f}'.format(result.selling_price_per_qtl) }}/quintal.</p>
+            {% if not result.is_profitable %}
+            <div class="alert alert-warning">This scenario shows a projected loss. Consider adjusting inputs, choosing a different crop, or checking the Risk Analysis and Smart Recommendation pages.</div>
+            {% endif %}
+        </div>
+        {% elif result and result.error %}
+        <div class="alert alert-danger">{{ result.error }}</div>
+        {% else %}
+        <div class="card empty-state">
+            <i class="fa-solid fa-calculator"></i>
+            <p>Fill in the form to see your investment, revenue, profit and ROI.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% if result and not result.error %}
+<script>
+KrishiCharts.createBarChart(
+    "costChart",
+    ["Seed", "Fertilizer", "Labour", "Irrigation", "Other"],
+    [{{ result.cost_breakdown.seed }}, {{ result.cost_breakdown.fertilizer }}, {{ result.cost_breakdown.labour }}, {{ result.cost_breakdown.irrigation }}, {{ result.cost_breakdown.other }}],
+    "Cost (₹)"
+);
+</script>
+{% endif %}
+{% endblock %}

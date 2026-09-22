@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}What-If Simulator — KrishiMitra{% endblock %}
+{% block content %}
+
+<div class="topbar">
+    <h1 class="greeting">What-If Simulator</h1>
+</div>
+
+{% if not farms %}
+<div class="card empty-state">
+    <i class="fa-solid fa-tractor"></i>
+    <p>Add a farm first to run scenarios against it.</p>
+    <a class="btn btn-primary" href="{{ url_for('farmer.add_farm') }}">Add a farm</a>
+</div>
+{% else %}
+
+<p class="muted" style="max-width: 70ch; margin-bottom: 20px;">
+    Change any condition below and see instantly how crop recommendations shift —
+    without touching your farm's real saved details.
+</p>
+
+<div class="card">
+    <form id="scenario-form" class="form-grid">
+        <div class="field">
+            <label for="sim_farm_id">Farm</label>
+            <select id="sim_farm_id" name="farm_id">
+                {% for f in farms %}
+                <option value="{{ f.farm_id }}" {{ 'selected' if selected_farm and selected_farm.farm_id == f.farm_id }}>{{ f.farm_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label for="sim_land_area">Land area (acres)</label>
+            <input type="number" step="0.1" id="sim_land_area" name="land_area" value="{{ selected_farm.land_area_acres if selected_farm else 2 }}">
+        </div>
+        <div class="field">
+            <label for="sim_budget">Budget (₹)</label>
+            <input type="number" id="sim_budget" name="budget" placeholder="Optional">
+        </div>
+        <div class="field">
+            <label for="sim_soil_id">Soil type</label>
+            <select id="sim_soil_id" name="soil_id">
+                {% for s in soils %}
+                <option value="{{ s.soil_id }}" {{ 'selected' if selected_farm and selected_farm.soil_id == s.soil_id }}>{{ s.soil_name.title() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label for="sim_season_id">Season</label>
+            <select id="sim_season_id" name="season_id">
+                {% for se in seasons %}
+                <option value="{{ se.season_id }}" {{ 'selected' if selected_farm and selected_farm.current_season_id == se.season_id }}>{{ se.season_name.title() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Water availability</label>
+            <div class="radio-group">
+                {% for opt in [('LOW','Low'), ('MODERATE','Moderate'), ('HIGH','High')] %}
+                <div class="pill-option">
+                    <input type="radio" id="sim_water_{{ opt[0] }}" name="water_availability" value="{{ opt[0] }}"
+                           {{ 'checked' if (selected_farm and selected_farm.water_availability == opt[0]) or (not selected_farm and opt[0]=='MODERATE') }}>
+                    <label for="sim_water_{{ opt[0] }}">{{ opt[1] }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </form>
+    <div class="form-actions">
+        <button id="analyze-btn" class="btn btn-gold"><i class="fa-solid fa-flask"></i> Analyze Scenario</button>
+        <button id="reset-btn" class="btn btn-ghost">Reset to Current Farm</button>
+    </div>
+</div>
+
+<div class="grid-2" style="margin-top: 24px;">
+    <div>
+        <h3 style="font-size:1.05rem;">Scenario A — Current Farm</h3>
+        <div id="scenario-a" class="card"><div class="empty-state"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading current scenario…</p></div></div>
+    </div>
+    <div>
+        <h3 style="font-size:1.05rem;">Scenario B — Your What-If</h3>
+        <div id="scenario-b" class="card"><div class="empty-state"><i class="fa-solid fa-flask"></i><p>Adjust the conditions above and click "Analyze Scenario".</p></div></div>
+    </div>
+</div>
+
+<div id="scenario-diff" class="card" style="margin-top:20px; display:none;">
+    <h3 style="font-size:1.05rem;">What changed?</h3>
+    <div id="scenario-diff-body"></div>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+const SIMULATOR_RUN_URL = "{{ url_for('recommendation.simulator_run') }}";
+const CURRENT_FARM = {{ (selected_farm | tojson) if selected_farm else 'null' }};
+
+function renderRanking(containerId, results) {
+    const container = document.getElementById(containerId);
+    if (!results || !results.length) {
+        container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-circle-exclamation"></i><p>No matching crops for this scenario.</p></div>';
+        return;
+    }
+    let html = '';
+    results.slice(0, 6).forEach((r, i) => {
+        const riskClass = r.risk_label.includes('LOW') ? 'badge-low' : (r.risk_label.includes('MEDIUM') ? 'badge-medium' : 'badge-high');
+        html += `
+        <div class="flex gap-12 items-center" style="padding: 10px 0; border-bottom: 1px solid var(--line);">
+            <span class="rank-badge ${i === 0 ? 'rank-1' : ''}">${i + 1}</span>
+            <div style="flex:1;">
+                <div class="flex justify-between items-center">
+                    <span class="crop-name" style="font-size:1rem;">${r.crop_name}</span>
+                    <span class="badge badge-gold">${r.score}%</span>
+                </div>
+                <span class="badge ${riskClass}">${r.risk_label}</span>
+            </div>
+        </div>`;
+    });
+    container.innerHTML = html;
+    container.dataset.results = JSON.stringify(results);
+}
+
+function runScenario(payload, containerId) {
+    return fetch(SIMULATOR_RUN_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) {
+            document.getElementById(containerId).innerHTML =
+                `<div class="empty-state"><i class="fa-solid fa-circle-exclamation"></i><p>${data.error}</p></div>`;
+            return null;
+        }
+        renderRanking(containerId, data.results);
+        return data.results;
+    });
+}
+
+function computeDiff(before, after) {
+    if (!before || !after) return;
+    const beforeRank = {}; before.forEach((r, i) => beforeRank[r.crop_id] = i + 1);
+    const afterRank = {}; after.forEach((r, i) => afterRank[r.crop_id] = i + 1);
+
+    const rows = [];
+    after.slice(0, 6).forEach((r) => {
+        const oldRank = beforeRank[r.crop_id];
+        let change = 'New to top ranks';
+        let icon = 'fa-star';
+        let cls = 'badge-gold';
+        if (oldRank) {
+            const delta = oldRank - afterRank[r.crop_id];
+            if (delta > 0) { change = `Up ${delta} place${delta > 1 ? 's' : ''}`; icon = 'fa-arrow-up'; cls = 'badge-low'; }
+            else if (delta < 0) { change = `Down ${Math.abs(delta)} place${Math.abs(delta) > 1 ? 's' : ''}`; icon = 'fa-arrow-down'; cls = 'badge-high'; }
+            else { change = 'No change'; icon = 'fa-minus'; cls = 'badge-neutral'; }
+        }
+        rows.push(`<div class="flex justify-between items-center" style="padding:8px 0; border-bottom:1px solid var(--line);">
+            <span>${r.crop_name}</span>
+            <span class="badge ${cls}"><i class="fa-solid ${icon}"></i> ${change}</span>
+        </div>`);
+    });
+    document.getElementById('scenario-diff-body').innerHTML = rows.join('');
+    document.getElementById('scenario-diff').style.display = 'block';
+}
+
+let scenarioAResults = null;
+
+function loadScenarioA() {
+    if (!CURRENT_FARM) return;
+    runScenario({
+        farm_id: CURRENT_FARM.farm_id,
+        soil_id: CURRENT_FARM.soil_id,
+        season_id: CURRENT_FARM.current_season_id,
+        water_availability: CURRENT_FARM.water_availability,
+        land_area: CURRENT_FARM.land_area_acres,
+        budget: null,
+    }, "scenario-a").then(results => { scenarioAResults = results; });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadScenarioA();
+
+    document.getElementById("analyze-btn").addEventListener("click", (e) => {
+        e.preventDefault();
+        const form = document.getElementById("scenario-form");
+        const fd = new FormData(form);
+        const payload = {
+            farm_id: fd.get("farm_id"),
+            soil_id: fd.get("soil_id"),
+            season_id: fd.get("season_id"),
+            water_availability: fd.get("water_availability"),
+            land_area: fd.get("land_area"),
+            budget: fd.get("budget") || null,
+        };
+        runScenario(payload, "scenario-b").then(results => computeDiff(scenarioAResults, results));
+    });
+
+    document.getElementById("reset-btn").addEventListener("click", (e) => {
+        e.preventDefault();
+        loadScenarioA();
+        document.getElementById("scenario-b").innerHTML = '<div class="empty-state"><i class="fa-solid fa-flask"></i><p>Adjust the conditions above and click "Analyze Scenario".</p></div>';
+        document.getElementById("scenario-diff").style.display = "none";
+    });
+});
+</script>
+{% endblock %}

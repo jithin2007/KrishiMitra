@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}KrishiMitra Admin{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% block head %}{% endblock %}
+</head>
+<body>
+<div id="toast-stack"></div>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="brand"><span class="leaf"><i class="fa-solid fa-seedling"></i></span> KrishiMitra <span class="badge badge-gold" style="margin-left:6px;">Admin</span></div>
+        <nav>
+            <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' }}"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+            <a href="{{ url_for('admin.farmers') }}" class="{{ 'active' if request.endpoint == 'admin.farmers' }}"><i class="fa-solid fa-users"></i> Farmers</a>
+            <a href="{{ url_for('admin.farms') }}" class="{{ 'active' if request.endpoint == 'admin.farms' }}"><i class="fa-solid fa-tractor"></i> Farms</a>
+            <a href="{{ url_for('admin.crops') }}" class="{{ 'active' if request.endpoint in ['admin.crops','admin.add_crop','admin.edit_crop','admin.crop_compatibility'] }}"><i class="fa-solid fa-wheat-awn"></i> Crops</a>
+            <a href="{{ url_for('admin.soils') }}" class="{{ 'active' if request.endpoint == 'admin.soils' }}"><i class="fa-solid fa-layer-group"></i> Soil Types</a>
+            <a href="{{ url_for('admin.seasons') }}" class="{{ 'active' if request.endpoint == 'admin.seasons' }}"><i class="fa-solid fa-calendar-days"></i> Seasons</a>
+            <a href="{{ url_for('admin.recommendations') }}" class="{{ 'active' if request.endpoint == 'admin.recommendations' }}"><i class="fa-solid fa-chart-line"></i> Recommendations Log</a>
+            <div class="sidebar-section">Account</div>
+            <a href="{{ url_for('auth.admin_logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div id="flash-data" style="display:none;">
+                {% for category, message in messages %}
+                    <div data-category="{{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

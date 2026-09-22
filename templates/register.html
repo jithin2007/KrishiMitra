@@ -1,0 +1,81 @@
+{% extends "base_public.html" %}
+{% block title %}Register — KrishiMitra{% endblock %}
+{% block body %}
+<div class="auth-shell">
+    <div class="auth-side">
+        <div class="brand"><span class="leaf"><i class="fa-solid fa-seedling"></i></span> KrishiMitra</div>
+        <p class="tagline">Better Decisions. Better Harvests.</p>
+        <p style="color:#CFE0D2; max-width: 42ch;">Create your free account to start getting crop recommendations built on your farm's real conditions.</p>
+        <ul>
+            <li><i class="fa-solid fa-check"></i> Ranked crop recommendations, explained in plain language</li>
+            <li><i class="fa-solid fa-check"></i> A What-If simulator to test different scenarios instantly</li>
+            <li><i class="fa-solid fa-check"></i> Profit and risk estimates before you plant</li>
+        </ul>
+    </div>
+    <div class="auth-form-wrap">
+        <div class="auth-card">
+            <div class="brand"><span class="leaf"><i class="fa-solid fa-seedling"></i></span> KrishiMitra</div>
+            <h1 style="font-size:1.6rem;">Create your account</h1>
+            <p class="muted" style="margin-bottom: 24px;">It takes less than a minute.</p>
+
+            <form id="register-form" method="POST" action="{{ url_for('auth.register') }}" novalidate>
+                <div class="field">
+                    <label for="full_name">Full name <span class="req">*</span></label>
+                    <input type="text" id="full_name" name="full_name" placeholder="e.g. Ramesh Kumar" required value="{{ form.full_name if form else '' }}">
+                </div>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="email">Email <span class="req">*</span></label>
+                        <input type="email" id="email" name="email" placeholder="you@example.com" required value="{{ form.email if form else '' }}">
+                        <span class="field-error muted" style="color:#B3402A;"></span>
+                    </div>
+                    <div class="field">
+                        <label for="phone">Phone <span class="req">*</span></label>
+                        <input type="tel" id="phone" name="phone" placeholder="9876543210" required value="{{ form.phone if form else '' }}">
+                        <span class="field-error muted" style="color:#B3402A;"></span>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="state">State</label>
+                        <input type="text" id="state" name="state" placeholder="e.g. Karnataka" value="{{ form.state if form else '' }}">
+                    </div>
+                    <div class="field">
+                        <label for="district">District</label>
+                        <input type="text" id="district" name="district" placeholder="e.g. Mandya" value="{{ form.district if form else '' }}">
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="password">Password <span class="req">*</span></label>
+                    <div class="password-field">
+                        <input type="password" id="password" name="password" placeholder="Create a strong password" required>
+                        <button type="button" class="password-toggle" data-target="password"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+                    <span class="hint">At least 8 characters, with uppercase, lowercase, a number and a symbol.</span>
+                    <span class="field-error muted" style="color:#B3402A;"></span>
+                </div>
+                <div class="field">
+                    <label for="confirm_password">Confirm password <span class="req">*</span></label>
+                    <div class="password-field">
+                        <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter your password" required>
+                        <button type="button" class="password-toggle" data-target="confirm_password"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+                    <span class="field-error muted" style="color:#B3402A;"></span>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-block">Create account</button>
+                </div>
+                <div class="form-actions">
+                    <button type="reset" class="btn btn-ghost btn-block" data-clear-form="register-form">Clear</button>
+                </div>
+            </form>
+            <p class="auth-footer-link">Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+<script src="{{ url_for('static', filename='js/forms.js') }}"></script>
+{% endblock %}

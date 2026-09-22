@@ -1,0 +1,31 @@
+{% extends "admin_base.html" %}
+{% block title %}Farmers — KrishiMitra Admin{% endblock %}
+{% block content %}
+<div class="topbar"><h1 class="greeting">Farmers</h1></div>
+
+<div class="table-wrap">
+    <table class="data-table">
+        <thead><tr><th>Name</th><th>Email</th><th>Farms</th><th>Land (acres)</th><th>Active Crops</th><th>Total Profit</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        {% for f in farmers %}
+            <tr>
+                <td>{{ f.full_name }}</td>
+                <td>{{ f.email }}</td>
+                <td>{{ f.total_farms }}</td>
+                <td>{{ '%.1f'|format(f.total_land_acres) }}</td>
+                <td>{{ f.active_crops }}</td>
+                <td>₹{{ '{:,.0f}'.format(f.total_profit) }}</td>
+                <td><span class="badge {{ 'badge-low' if status_map.get(f.farmer_id) == 'ACTIVE' else 'badge-high' }}">{{ status_map.get(f.farmer_id) }}</span></td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin.toggle_farmer_status', farmer_id=f.farmer_id) }}" data-confirm="Change this farmer's status?">
+                        <button type="submit" class="btn btn-sm {{ 'btn-danger' if status_map.get(f.farmer_id) == 'ACTIVE' else 'btn-outline' }}">
+                            {{ 'Block' if status_map.get(f.farmer_id) == 'ACTIVE' else 'Unblock' }}
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

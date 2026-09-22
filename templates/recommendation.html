@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Smart Recommendation — KrishiMitra{% endblock %}
+{% block content %}
+
+<div class="topbar">
+    <h1 class="greeting">Smart Crop Recommendation</h1>
+</div>
+
+{% if not farms %}
+<div class="card empty-state">
+    <i class="fa-solid fa-tractor"></i>
+    <p>Add a farm first so we can recommend crops suited to it.</p>
+    <a class="btn btn-primary" href="{{ url_for('farmer.add_farm') }}">Add a farm</a>
+</div>
+{% else %}
+
+<div class="card">
+    <form method="GET" class="form-grid" style="align-items:flex-end;">
+        <div class="field">
+            <label for="farm_id">Farm</label>
+            <select id="farm_id" name="farm_id" onchange="this.form.submit()">
+                {% for f in farms %}
+                <option value="{{ f.farm_id }}" {{ 'selected' if selected_farm and selected_farm.farm_id == f.farm_id }}>{{ f.farm_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label for="budget">Your budget (₹, optional)</label>
+            <input type="number" id="budget" name="budget" placeholder="e.g. 40000" value="{{ budget or '' }}">
+        </div>
+        <div class="field">
+            <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+    </form>
+</div>
+
+{% if selected_farm %}
+<div class="card" style="margin-bottom:24px;">
+    <div class="meta-row">
+        <span><i class="fa-solid fa-tractor"></i> {{ selected_farm.farm_name }}</span>
+        <span><i class="fa-solid fa-layer-group"></i> {{ selected_farm.soil_name.title() }} soil</span>
+        <span><i class="fa-solid fa-droplet"></i> {{ selected_farm.water_availability.title() }} water</span>
+        <span><i class="fa-solid fa-ruler-combined"></i> {{ selected_farm.land_area_acres }} acres</span>
+    </div>
+</div>
+{% endif %}
+
+{% if results %}
+<div class="grid-2">
+    {% for r in results[:6] %}
+    <div class="card">
+        <div class="flex gap-12 items-center">
+            <span class="rank-badge {{ 'rank-1' if loop.index == 1 }}">{{ loop.index }}</span>
+            <div style="flex:1;">
+                <div class="flex justify-between items-center">
+                    <span class="crop-name">{{ r.crop_name }}</span>
+                    <span class="badge badge-gold">{{ r.score }}% match</span>
+                </div>
+                <span class="badge {{ 'badge-low' if 'LOW' in r.risk_label else ('badge-medium' if 'MEDIUM' in r.risk_label else 'badge-high') }}">{{ r.risk_label }}</span>
+            </div>
+        </div>
+
+        <details style="margin-top:14px;">
+            <summary style="cursor:pointer; font-weight:600; font-size:0.9rem; color:var(--forest-800);">Why this crop?</summary>
+            <ul class="explanation-list">
+                {% for reason in r.explanation %}
+                <li><i class="fa-solid fa-circle-check"></i> {{ reason }}</li>
+                {% endfor %}
+                {% for concern in r.concerns %}
+                <li class="concern"><i class="fa-solid fa-circle-exclamation"></i> {{ concern }}</li>
+                {% endfor %}
+            </ul>
+            <div class="meta-row" style="margin-top:12px;">
+                <span>Soil {{ r.breakdown.soil }}/25</span>
+                <span>Season {{ r.breakdown.season }}/20</span>
+                <span>Water {{ r.breakdown.water }}/20</span>
+                <span>Budget {{ r.breakdown.budget }}/15</span>
+                <span>Rotation {{ r.breakdown.rotation }}/10</span>
+                <span>Resources {{ r.breakdown.resource }}/10</span>
+            </div>
+        </details>
+
+        <div class="flex justify-between" style="margin-top:14px; font-size:0.85rem;">
+            <span class="muted">Est. cost: ₹{{ '{:,.0f}'.format(r.estimated_cost) }}</span>
+            <span class="muted">Est. revenue: ₹{{ '{:,.0f}'.format(r.expected_revenue) }}</span>
+        </div>
+        <a class="btn btn-outline btn-sm" style="margin-top:10px;" href="{{ url_for('crops.crop_detail', crop_id=r.crop_id) }}">View crop details</a>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <a class="btn btn-gold" href="{{ url_for('recommendation.simulator', farm_id=selected_farm.farm_id) }}"><i class="fa-solid fa-sliders"></i> Try the What-If Simulator with this farm</a>
+</div>
+{% endif %}
+
+{% endif %}
+{% endblock %}

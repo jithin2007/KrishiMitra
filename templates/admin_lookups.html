@@ -1,0 +1,37 @@
+{% extends "admin_base.html" %}
+{% block title %}{{ kind }}s — KrishiMitra Admin{% endblock %}
+{% block content %}
+<div class="topbar"><h1 class="greeting">{{ kind }}s</h1></div>
+
+<div class="grid-2">
+    <div class="card">
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr>{% for key in rows[0].keys() if rows %}<th>{{ key.replace('_',' ').title() }}</th>{% endfor %}</tr></thead>
+                <tbody>
+                {% for row in rows %}
+                    <tr>{% for value in row.values() %}<td>{{ value }}</td>{% endfor %}</tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card">
+        <h3 style="font-size:1.05rem;">Add {{ kind }}</h3>
+        <form method="POST" action="{{ url_for(add_endpoint) }}">
+            {% if kind == 'Soil Type' %}
+                <div class="field"><label for="soil_name">Name <span class="req">*</span></label><input type="text" id="soil_name" name="soil_name" required></div>
+                <div class="field"><label for="description">Description</label><textarea id="description" name="description"></textarea></div>
+            {% else %}
+                <div class="field"><label for="season_name">Name <span class="req">*</span></label><input type="text" id="season_name" name="season_name" required></div>
+                <div class="field"><label for="description">Description</label><textarea id="description" name="description"></textarea></div>
+                <div class="form-grid">
+                    <div class="field"><label for="start_month">Start month (1-12)</label><input type="number" min="1" max="12" id="start_month" name="start_month" required></div>
+                    <div class="field"><label for="end_month">End month (1-12)</label><input type="number" min="1" max="12" id="end_month" name="end_month" required></div>
+                </div>
+            {% endif %}
+            <div class="form-actions"><button class="btn btn-primary" type="submit">Add</button></div>
+        </form>
+    </div>
+</div>
+{% endblock %}

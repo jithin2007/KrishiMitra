@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}{{ crop.crop_name }} — KrishiMitra{% endblock %}
+{% block content %}
+
+<div class="topbar">
+    <div>
+        <a href="{{ url_for('crops.crop_list') }}" class="muted" style="font-size:0.85rem;"><i class="fa-solid fa-arrow-left"></i> Back to Crop Library</a>
+        <h1 class="greeting" style="margin-top:6px;">{{ crop.crop_name }}</h1>
+    </div>
+    <span class="badge {{ 'badge-low' if crop.base_risk_level=='LOW' else ('badge-medium' if crop.base_risk_level=='MEDIUM' else 'badge-high') }}">{{ crop.base_risk_level.title() }} base risk</span>
+</div>
+
+<div class="grid-2">
+    <div>
+        <div class="card">
+            <h3 style="font-size:1.05rem;">Description</h3>
+            <p>{{ crop.description }}</p>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size:1.05rem;">Suitable soils</h3>
+            <div class="tag-list">
+                {% for s in soils %}
+                <span class="badge {{ 'badge-low' if s.suitability_level in ('EXCELLENT','GOOD') else 'badge-medium' }}">{{ s.soil_name.title() }} — {{ s.suitability_level.title() }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size:1.05rem;">Suitable seasons</h3>
+            <div class="tag-list">
+                {% for se in seasons %}<span class="badge badge-neutral">{{ se.season_name.title() }}</span>{% endfor %}
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size:1.05rem;">Typical resources needed</h3>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>Resource</th><th>Type</th><th>Qty / acre</th></tr></thead>
+                    <tbody>
+                    {% for r in resources %}
+                        <tr><td>{{ r.resource_name }}</td><td>{{ r.resource_type.title() }}</td><td>{{ r.qty_per_acre }} {{ r.unit }}</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="card card-accent">
+            <h3 style="font-size:1.05rem;">At a glance</h3>
+            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; font-size:0.92rem;">
+                <li class="flex justify-between"><span class="muted">Water requirement</span><strong>{{ crop.water_requirement.title() }}</strong></li>
+                <li class="flex justify-between"><span class="muted">Growth duration</span><strong>{{ crop.growth_duration_days }} days</strong></li>
+                <li class="flex justify-between"><span class="muted">Expected yield</span><strong>{{ crop.expected_yield_qtl_per_acre }} qtl/acre</strong></li>
+                <li class="flex justify-between"><span class="muted">Avg. selling price</span><strong>₹{{ '{:,.0f}'.format(crop.avg_selling_price_per_qtl) }}/qtl</strong></li>
+                <li class="flex justify-between"><span class="muted">Est. cost/acre</span><strong>₹{{ '{:,.0f}'.format(estimated_cost) }}</strong></li>
+                <li class="flex justify-between"><span class="muted">Est. revenue/acre</span><strong>₹{{ '{:,.0f}'.format(expected_revenue) }}</strong></li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size:1.05rem;">Risk factors</h3>
+            {% for r in risks %}
+            <div style="margin-bottom:12px;">
+                <div class="flex justify-between" style="font-size:0.86rem; margin-bottom:4px;">
+                    <span>{{ r.risk_type.title() }}</span><span>{{ r.risk_score|int }}%</span>
+                </div>
+                <div class="progress risk-bar {{ 'low' if r.risk_score < 35 else ('medium' if r.risk_score < 60 else '') }}">
+                    <span style="width: {{ r.risk_score }}%;"></span>
+                </div>
+                {% if r.notes %}<p class="muted" style="font-size:0.78rem; margin: 4px 0 0;">{{ r.notes }}</p>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <a class="btn btn-primary btn-block" href="{{ url_for('economics.index') }}"><i class="fa-solid fa-calculator"></i> Estimate profit for this crop</a>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base_public.html" %}
+{% block title %}Not Found — KrishiMitra{% endblock %}
+{% block body %}
+<div class="container text-center" style="padding: 100px 24px;">
+    <h1 style="font-size:3rem;">404</h1>
+    <p class="muted">The page you're looking for doesn't exist.</p>
+    <a class="btn btn-primary" href="{{ url_for('main.index') }}">Go home</a>
+</div>
+{% endblock %}
