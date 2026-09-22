@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # KrishiMitra 🌾
 **Better Decisions. Better Harvests.**
 
@@ -433,3 +434,7 @@ A: `CURRENT` stores the farmer's live recommendation for their actual farm condi
 3. **No external AI dependency** — the entire decision engine runs on transparent, auditable SQL/PL-SQL logic that a student (or a skeptical farmer) can fully inspect.
 4. **Decision support, not just record-keeping** — economics and risk modules turn raw agricultural data into an actual go/no-go business case per crop.
 5. **Database-first engineering** — the scoring/profit/risk logic is implemented natively in Oracle (functions, procedures, triggers) as well as in the app layer, so the system remains correct and demonstrable even querying Oracle directly, independent of the web UI.
+=======
+# KrishiMitra
+KrishiMitra — a farmer decision-support platform built on Flask and Oracle Database. Features a transparent, rule-based crop recommendation engine, a What-If simulator, farming economics and risk analysis calculators, and a fully normalized (3NF) database with PL/SQL functions, procedures, triggers, and views.
+>>>>>>> fd07819ec4ec8bf605d62468e09529ff656d223f
